@@ -1,0 +1,69 @@
+---
+- hosts: all
+
+  handlers:
+    - name: restart apache
+      service: 
+        name: apache2
+        state: restarted
+      become: yes
+
+  tasks:
+    - name: Intalar os pacotes e dependencias
+      apt: 
+        name: ['php5', 'apache2', 'libapache2-mod-php5', 'php5-gd', 'libssh2-php', 'php5-mcrypt', 'mysql-server-5.6', 'python-mysqldb', 'php5-mysql']
+        state: latest
+      become: yes
+
+    - name: Criar o bd
+      mysql_db:
+        name: wordpress_db
+        login_user: root
+        state: present
+
+    - name: Criar usuario no bd
+      mysql_user: 
+        login_user: root
+        name: wordpress_user
+        password: '12345'
+        priv: 'wordpress_db.*:ALL'
+        state: present
+      
+    - name: download do wordpress
+      get_url:
+        url: 'https://br.wordpress.org/wordpress-5.1.10-pt_BR.tar.gz'
+        dest: /tmp/wordpress.tar.gz
+        
+    - name: descompactar o arquivo
+      unarchive:
+        src: '/tmp/wordpress.tar.gz'
+        dest: /var/www/
+        remote_src: yes
+      become: yes  
+
+    - name: Copiando arquivo do wordpress
+      copy:
+        src: '/var/www/wordpress/wp-config-sample.php'
+        dest: /var/www/wordpress/wp-config.php
+        remote_src: yes
+      become: yes
+
+    - name: 'Configura o wp-config com as entradas do banco de dados'     
+      replace:
+        path: '/var/www/wordpress/wp-config.php'
+        regexp: "{{ item.regex }}"
+        replace: "{{ item.value }}"
+        backup: yes
+      with_items:
+        - { regex: 'nome_do_banco_de_dados_aqui', value: 'wordpress_db'}
+        - { regex: 'nome_de_usuario_aqui', value: 'wordpress_user'}
+        - { regex: 'senha_aqui', value: '12345'}
+      become: yes
+
+    - name: 'cofigura o apache para servir o wordpress'
+      copy:
+        src: 'files/000-default.conf'
+        dest: '/etc/apache2/sites-available/000-default.conf'
+      become: yes
+      notify:
+        - restart apache
