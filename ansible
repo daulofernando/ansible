@@ -1,0 +1,22 @@
+ansible GRUPO DE HOSTS -u USUARIO_DA_VM --private-key LOCAL_DA_CHAVE_PRIVADA -i hosts -m shell -a 'echo hello world!'
+
+ansible-playbook ARQUIVO_DE_PROVISIONAMENTO -u USUARIO_DA_VM -i hosts --private-key LOCAL_DA_CHAVE_PRIVADA 
+
+
+  tasks:
+    - name: Update dos pacotes
+      apt: update_cache = yes
+      become: yes
+
+    - name: Intalar os pacotes e dependencias
+      apt: 
+        name: ['php5', 'apache2', 'libapache2-mod-php5', php5-gd]
+        state: latest
+      become: yes
+
+    - name: Criar o bd
+      mysql_db:
+        name: wordpress_db
+        login_user: root
+        state: present
+
