@@ -1,17 +1,17 @@
 ---
-- hosts: all
-
+- hosts: database
+ 
   handlers:
-    - name: restart apache
+    - name: restart mysql
       service: 
-        name: apache2
+        name: mysql
         state: restarted
       become: yes
 
   tasks:
-    - name: Intalar os pacotes e dependencias
+    - name: Intalar os pacotes e dependencias do banco
       apt: 
-        name: ['php5', 'apache2', 'libapache2-mod-php5', 'php5-gd', 'libssh2-php', 'php5-mcrypt', 'mysql-server-5.6', 'python-mysqldb', 'php5-mysql']
+        name: ['mysql-server-5.6', 'python-mysqldb', 'php5-mysql']
         state: latest
       become: yes
 
@@ -28,7 +28,35 @@
         password: '12345'
         priv: 'wordpress_db.*:ALL'
         state: present
-      
+        host: "{{ item }}"
+      with_items:
+        - 'localhost'
+        - '127.0.0.1'
+        - '172.17.177.40'
+
+    - name: Copiando arquivo my.conf para o mysql aceitar conexões remotas
+      copy:
+        src: 'files/my.cnf'
+        dest: '/etc/mysql/my.cnf'
+      become: yes
+      notify: restart mysql
+
+- hosts: wordpress
+
+  handlers:
+    - name: restart apache
+      service: 
+        name: apache2
+        state: restarted
+      become: yes
+
+  tasks:
+    - name: Intalar os pacotes e dependencias
+      apt: 
+        name: ['php5', 'apache2', 'libapache2-mod-php5', 'php5-gd', 'libssh2-php', 'php5-mcrypt', 'php5-mysql']
+        state: latest
+      become: yes
+   
     - name: download do wordpress
       get_url:
         url: 'https://br.wordpress.org/wordpress-5.1.10-pt_BR.tar.gz'
@@ -58,6 +86,7 @@
         - { regex: 'nome_do_banco_de_dados_aqui', value: 'wordpress_db'}
         - { regex: 'nome_de_usuario_aqui', value: 'wordpress_user'}
         - { regex: 'senha_aqui', value: '12345'}
+        - { regex: 'localhost', value: '172.17.177.42'}
       become: yes
 
     - name: 'cofigura o apache para servir o wordpress'
