@@ -1,0 +1,32 @@
+---
+- name: 'Intalar os pacotes e dependencias do banco'
+  apt: 
+    name: ['mysql-server-5.6', 'python-mysqldb', 'php5-mysql']
+    state: latest
+  become: yes
+
+- name: 'Criar o bd'
+  mysql_db:
+    name: "{{ wp_db_name }}"
+    login_user: root
+    state: present
+
+- name: 'Criar usuario no bd'
+  mysql_user: 
+    login_user: root
+    name: "{{ wp_username }}"
+    password: "{{ wp_user_password }}"
+    priv: "{{ wp_db_name }}.*:ALL"
+    state: present
+    host: "{{ item }}"
+  with_items:
+    - 'localhost'
+    - '127.0.0.1'
+    - "{{ wp_host_ip }}"
+
+- name: 'Copiando arquivo my.conf para o mysql aceitar conexões remotas'
+  copy:
+    src: 'files/my.cnf'
+    dest: '/etc/mysql/my.cnf'
+  become: yes
+  notify: restart mysql

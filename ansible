@@ -2,7 +2,18 @@ ansible GRUPO DE HOSTS -u USUARIO_DA_VM --private-key LOCAL_DA_CHAVE_PRIVADA -i 
 
 ansible-playbook ARQUIVO_DE_PROVISIONAMENTO -u USUARIO_DA_VM -i hosts --private-key LOCAL_DA_CHAVE_PRIVADA 
 
+ansible-playbook ARQUIVO_DE_PROVISIONAMENTO -i hosts --extra-vars 'wp_db_name=wordpress_db' = passando um valor para a variavel wp_db_name direto na execução
+  
+  crar variavel = criar: pasta group_vars, dentro dela o arquivo all.yml, dentro dele declarar as variaveis
 
+  TEMPLATES = aplica variaveis fora do arquivo de provisionamento, 
+  para isso: criar a pasta templates e salvar o arquivo nela, com a extensão .j2 no final, 
+  com isso será possivel usar variaveis nesse arquivo
+
+  "{{ VARIAVEL }}" = chamando uma variavel
+  
+  
+  
   tasks:
     - name: Update dos pacotes
       apt: update_cache = yes
