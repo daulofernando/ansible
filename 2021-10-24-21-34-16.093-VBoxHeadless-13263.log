@@ -1,0 +1,12 @@
+Log created: 2021-10-24T21:34:16.932213000Z
+Process ID:  13263 (0x33cf)
+Parent PID:  1 (0x1)
+Executable:  /usr/lib/virtualbox/VBoxHeadless
+Arg[0]: /usr/lib/virtualbox/VBoxHeadless
+Arg[1]: --comment
+Arg[2]: ansible_default_1634944141834_58585
+Arg[3]: --startvm
+Arg[4]: 3d6e53f0-1722-4e01-8faf-5397de7b5e62
+Arg[5]: --vrde
+Arg[6]: config
+AddRef: illegal refcnt=3221225469 state=2
