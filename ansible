@@ -11,7 +11,8 @@ ansible-playbook ARQUIVO_DE_PROVISIONAMENTO -i hosts --extra-vars 'wp_db_name=wo
   com isso será possivel usar variaveis nesse arquivo
 
   "{{ VARIAVEL }}" = chamando uma variavel
-  
+
+  ansible-playbook ARQUIVO_DE_PROVISIONAMENTO --tags TAG_DO_PROVISIONAMENTO --limit NOME_DO_HOST = ira executar somente o bloco da tag no host especificado na flag limit
   
   
   tasks:
